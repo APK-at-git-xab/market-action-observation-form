@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qualitative Observation Input Forms</title>
-  <!-- Your complete V3 stylesheet -->
+  <!-- Your complete V3 stylesheet with modal styles -->
   <style>
     :root {
       --bg: #0f172a; --panel: #111827; --muted: #94a3b8; --text: #e5e7eb; --accent: #22d3ee; --accent-2: #a78bfa;
@@ -24,19 +24,14 @@
     .card { margin-top: 16px; border: 1px solid var(--border); background: rgba(17,24,39,.6); backdrop-filter: blur(6px); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 24px rgba(0,0,0,.25); }
     .card header { border-bottom: 1px solid var(--border); padding: 16px 20px; }
     .card main { padding: 20px; }
-    .grid { display: grid; gap: 16px; }
-    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
-    fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 14px; }
+    fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
     legend { padding: 0 6px; color: var(--accent-2); font-weight: 600; letter-spacing: .2px; }
-    label { display:block; font-size: 12px; letter-spacing: .3px; text-transform: uppercase; color: var(--muted); margin-bottom: 6px; }
-    input[type="text"], input[type="date"], textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0a0f1e; color: var(--text); }
+    label { display:block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
+    input[type="text"], input[type="date"], select, textarea { width: 100%; box-sizing: border-box; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0a0f1e; color: var(--text); font-family: inherit; }
     textarea { min-height: 100px; }
-    .chips { display:flex; flex-wrap: wrap; gap:10px; }
-    .chip { display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border:1px solid var(--border); border-radius: 999px; cursor: pointer; }
-    .chip:hover { border-color: var(--accent); }
-    .chip input { accent-color: var(--accent); }
+    select optgroup { font-style: italic; background: rgba(255,255,255,0.05); color: var(--muted); }
+    .context-row { display: flex; gap: 20px; flex-wrap: wrap; align-items: end; }
+    .context-row > div { flex: 1; min-width: 180px; }
     .btnbar { display:flex; gap:10px; justify-content:flex-end; margin-top: 18px; }
     button { appearance: none; border: 1px solid transparent; border-radius: 12px; padding: 10px 14px; font-weight: 600; cursor: pointer; background: var(--accent); color: #001018; transition: transform .06s ease, background .15s ease; }
     button:disabled { cursor: not-allowed !important; background: #374151 !important; color: #9ca3af !important; opacity: 0.7; }
@@ -55,8 +50,9 @@
     .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
     .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; }
     .preview-table { width: 100%; border-collapse: collapse; }
-    .preview-table th, .preview-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); }
-    .preview-table th { background: var(--border); text-align: left; }
+    .preview-table th, .preview-table td { padding: 12px 16px; border-bottom: 1px solid var(--border); text-align: left; }
+    .preview-table th { background: var(--border); }
+    .section-header { background: rgba(167, 139, 250, 0.1); color: var(--accent-2); font-weight: 700; }
     .json-preview { background: #0a0f1e; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: 'Courier New', monospace; white-space: pre-wrap; display: none; }
   </style>
 </head>
@@ -68,56 +64,35 @@
     </header>
     <nav class="tabs" role="tablist" aria-label="Forms"><div class="tab" role="tab" id="tab-wyckoff" aria-controls="panel-wyckoff" aria-selected="true">Wyckoff Structure Vector</div><div class="tab" role="tab" id="tab-auction" aria-controls="panel-auction" aria-selected="false">Auction Structure Vector</div></nav>
 
-    <!-- YOUR FULL WYCKOFF FORM -->
+    <!-- WYCKOFF FORM WITH DROPDOWNS -->
     <section id="panel-wyckoff" role="tabpanel" aria-labelledby="tab-wyckoff" class="card">
         <header><h2 style="margin:0">Form 1 — Wyckoff Structure Vector Tracking</h2></header>
         <main>
             <form id="form-wyckoff" autocomplete="off">
-                <input type="hidden" name="form_id" value="wyckoff_structure_vector" />
-                <div class="grid grid-3">
-                    <div><label for="wy_event_date">Event Date</label><input id="wy_event_date" name="event_date" type="date" required /></div>
-                    <div><label for="wy_instrument">Instrument</label><input id="wy_instrument" name="instrument" type="text" placeholder="ES" required /></div>
-                    <div><label for="wy_timeframe">Timeframe</label><input id="wy_timeframe" name="timeframe" type="text" placeholder="1D / 15m / 1000v" required /></div>
-                </div>
-                <div class="grid grid-2">
-                    <fieldset><legend>General Tests & Setups</legend><div class="grid"><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_ST_BOTTOM_LOW_VOL" required /> ST of Bottom (LowVol)</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_ST_BOTTOM_HIGH_VOL" /> ST of Bottom (HighVol)</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_SPRING_SETUP" /> Spring / Shakeout Setup</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_UPTHRUST_SETUP" /> Upthrust Setup</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_SOS_ACTION" /> SOS Action</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_SOW_ACTION" /> SOW Action</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_NEUTRAL_NO_EVENT" /> No Clear Event</label></div></fieldset>
-                    <fieldset><legend>Confirmed Events</legend><div class="grid"><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_SPRING_CONFIRMED" /> Spring Confirmed</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_SPRING_FAILED" /> Spring Failed</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_UPTHRUST_CONFIRMED" /> Upthrust Confirmed</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_UPTHRUST_FAILED" /> Upthrust Failed</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_LPS_CONFIRMED" /> LPS</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_LPSY_CONFIRMED" /> LPSY</label></div></fieldset>
-                    <fieldset><legend>Phase A Events</legend><div class="grid"><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_PS" /> PS</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_SC" /> SC</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_AR_ACCUM" /> AR (Accum.)</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_PSY" /> PSY</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_BC" /> BC</label><label class="chip"><input type="radio" name="wyckoff_event_code" value="WYCKOFF_PHASE_A_AR_DIST" /> AR (Dist.)</label></div></fieldset>
-                    <fieldset><legend>Supporting Volume/Delta Evidence</legend><div class="chips"><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_CHURN" /> High Vol Churn</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_EXHAUSTION" /> Exhaustion Vol</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_APATHY" /> Low Vol / Apathy</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_DELTA_DIV_BULL" /> +Δ Divergence</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_DELTA_DIV_BEAR" /> -Δ Divergence</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_LARGE_LOTS" /> Large Lot Absorption</label><label class="chip"><input type="checkbox" name="evidence_codes" value="VOL_EVIDENCE_TRAPPED_TRADERS" /> Trapped Traders</label></div></fieldset>
-                </div>
-                <div class="grid">
-                    <div><label for="wy_notes_short">Notes (short)</label><input id="wy_notes_short" name="notes_short" type="text" placeholder="Key observation…" /></div>
-                    <div><label for="wy_notes_long">Analytical Notes (long form)</label><textarea id="wy_notes_long" name="notes_long" placeholder="Reasoning, context, references…"></textarea></div>
-                </div>
+                <div class="context-row"><div><label for="wy_event_date">Event Date</label><input id="wy_event_date" name="event_date" type="date" required /></div><div><label for="wy_instrument">Instrument</label><input id="wy_instrument" name="instrument" type="text" placeholder="ES" required /></div><div><label for="wy_timeframe">Timeframe</label><select id="wy_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div></div>
+                <fieldset><legend>Event & Evidence</legend><label for="wy_event_code">Inferred Event / Setup</label><select id="wy_event_code" name="wyckoff_event_code" required><option value="">Select event...</option><optgroup label="General Tests & Setups"><option value="WYCKOFF_ST_BOTTOM_LOW_VOL">ST of Bottom (LowVol)</option></optgroup><optgroup label="Confirmed Events"><option value="WYCKOFF_SPRING_CONFIRMED">Spring Confirmed</option></optgroup></select></fieldset>
+                <fieldset><legend>Notes</legend><textarea id="wy_analytical_notes" name="analytical_notes" rows="4"></textarea></fieldset>
                 <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview Data</button><button type="submit">Submit</button></div>
             </form>
         </main>
     </section>
 
-    <!-- YOUR FULL AUCTION FORM -->
+    <!-- AUCTION FORM WITH DROPDOWNS -->
     <section id="panel-auction" role="tabpanel" aria-labelledby="tab-auction" class="card hidden">
       <header><h2 style="margin:0">Form 2 — Auction Structure Vector Tracking</h2></header>
       <main>
         <form id="form-auction" autocomplete="off">
-          <input type="hidden" name="form_id" value="auction_structure_vector" />
-          <div class="grid grid-3">
-            <div><label for="au_event_date">Event Date</label><input id="au_event_date" name="event_date" type="date" required /></div>
-            <div><label for="au_instrument">Instrument</label><input id="au_instrument" name="instrument" type="text" placeholder="ES" required /></div>
-            <div><label for="au_timeframe">Timeframe</label><input id="au_timeframe" name="timeframe" type="text" placeholder="1D / 15m / 1000v" required /></div>
-          </div>
-          <div class="grid grid-2">
-            <fieldset><legend>Volume Profile Shape</legend><div class="grid"><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_D" required /> D-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_P" /> p-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_B" /> b-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_DD" /> B-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_I" /> I-Profile</label></div></fieldset>
-            <fieldset><legend>Swing Structure</legend><div class="grid"><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BULLISH_STRONG" required /> Strong Bullish</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BULLISH_WEAK" /> Weak Bullish</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_NEUTRAL_RANGEBOUND" /> Neutral</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BEARISH_WEAK" /> Weak Bearish</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BEARISH_STRONG" /> Strong Bearish</label></div></fieldset>
-            <fieldset><legend>Break of Structure (BOS)</legend><div class="grid"><label class="chip"><input type="radio" name="bos" value="BOS_BULLISH_CONFIRMED" required /> Confirmed Bullish</label><label class="chip"><input type="radio" name="bos" value="BOS_BULLISH_UNCONFIRMED" /> Unconfirmed Bullish</label><label class="chip"><input type="radio" name="bos" value="BOS_NEUTRAL_CONSOLIDATING" /> No BOS</label><label class="chip"><input type="radio" name="bos" value="BOS_BEARISH_UNCONFIRMED" /> Unconfirmed Bearish</label><label class="chip"><input type="radio" name="bos" value="BOS_BEARISH_CONFIRMED" /> Confirmed Bearish</label></div></fieldset>
-            <fieldset><legend>Ichimoku and Cloud</legend><div class="grid"><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_BREAKOUT" required /> Kumo Breakout</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_TREND_BULL" /> Full Bullish</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_PULLBACK_BULL" /> Bullish Pullback</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_NEUTRAL_IN_CLOUD" /> Neutral / In Cloud</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_BOUNCE_BEAR" /> Bearish Bounce</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_TREND_BEAR" /> Full Bearish</label></div></fieldset>
-            <fieldset><legend>Daily Profile Geometry</legend><div class="grid"><label class="chip"><input type="radio" name="sva" value="SVA_ACCEPTANCE_ABOVE_VAH" required /> Accept Above VAH</label><label class="chip"><input type="radio" name="sva" value="SVA_REJECTION_AT_VAH" /> Reject at VAH</label><label class="chip"><input type="radio" name="sva" value="SVA_ROTATION_ABOVE_POC" /> Rotate Above POC</label><label class="chip"><input type="radio" name="sva" value="SVA_REVERT_TO_POC_FROM_LOW" /> Revert to POC</label><label class="chip"><input type="radio" name="sva" value="SVA_ROTATION_BELOW_POC" /> Rotate Below POC</label><label class="chip"><input type="radio" name="sva" value="SVA_REJECTION_AT_VAL" /> Reject at VAL</label><label class="chip"><input type="radio" name="sva" value="SVA_ACCEPTANCE_BELOW_VAL" /> Accept Below VAL</label></div></fieldset>
-            <fieldset><legend>Weis Wave</legend><div class="grid"><label class="chip"><input type="radio" name="weis_wave" value="WW_SPRING_POTENTIAL" required /> Bullish Reversal</label><label class="chip"><input type="radio" name="weis_wave" value="WW_NO_SUPPLY" /> No Supply</label><label class="chip"><input type="radio" name="weis_wave" value="WW_INDECISION_CHURN" /> Indecision</label><label class="chip"><input type="radio" name="weis_wave" value="WW_NO_DEMAND" /> No Demand</label><label class="chip"><input type="radio" name="weis_wave" value="WW_UPTHRUST_POTENTIAL" /> Bearish Reversal</label></div></fieldset>
-          </div>
-          <div class="grid">
-            <div><label for="au_notes_short">Notes (short)</label><input id="au_notes_short" name="notes_short" type="text" placeholder="Key observation…" /></div>
-            <div><label for="au_notes_long">Analytical Notes (long form)</label><textarea id="au_notes_long" name="notes_long" placeholder="Reasoning, context, references…"></textarea></div>
-          </div>
-          <div class="btnbar"><button type="button" class="secondary" data-action="preview" data-form="auction">Preview Data</button><button type="submit">Submit</button></div>
+            <div class="context-row"><div><label for="au_event_date">Event Date</label><input id="au_event_date" name="event_date" type="date" required /></div><div><label for="au_instrument">Instrument</label><input id="au_instrument" name="instrument" type="text" placeholder="ES" required /></div><div><label for="au_timeframe">Timeframe</label><select id="au_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div></div>
+            <fieldset><legend>Dominant Trend Bias</legend>
+                <label>Volume Profile Shape</label><select name="volume_profile_shape" required><option value="">Select...</option><option value="VP_SHAPE_D">D-Profile</option><option value="VP_SHAPE_P">p-Profile</option></select>
+                <label>Swing Structure</label><select name="swing_structure" required><option value="">Select...</option><option value="SWING_STRUCTURE_BULLISH_STRONG">Strong Bullish</option><option value="SWING_STRUCTURE_NEUTRAL_RANGEBOUND">Neutral</option></select>
+                <label>Break of Structure (BOS)</label><select name="break_of_structure" required><option value="">Select...</option><option value="BOS_BULLISH_CONFIRMED">Confirmed Bullish BOS</option><option value="BOS_NEUTRAL_CONSOLIDATING">No BOS</option></select>
+                <label>Ichimoku and Cloud</label><select name="ichimoku_cloud" required><option value="">Select...</option><option value="ICHIMOKU_TREND_BULL">Full Bullish Alignment</option><option value="ICHIMOKU_NEUTRAL_IN_CLOUD">Neutral / In Cloud</option></select>
+                <label>Daily Profile Geometry</label><select name="daily_profile_geometry" required><option value="">Select...</option><option value="SVA_ACCEPTANCE_ABOVE_VAH">Acceptance Above Range</option><option value="SVA_REJECTION_AT_VAH">Rejection at Range High</option></select>
+                <label>Weis Wave</label><select name="weis_wave" required><option value="">Select...</option><option value="WW_SPRING_POTENTIAL">Bullish Reversal (Spring)</option><option value="WW_NO_SUPPLY">No Supply</option></select>
+            </fieldset>
+            <fieldset><legend>Notes</legend><textarea name="analytical_notes" rows="3"></textarea></fieldset>
+            <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview Data</button><button type="submit">Submit</button></div>
         </form>
       </main>
     </section>
@@ -197,17 +172,11 @@
       const json = {};
       json.submission_timestamp_client = new Date().toISOString();
       for (const [key, value] of data.entries()) {
-        if (key === 'evidence_codes') {
-          if (!json[key]) json[key] = [];
+        if (json[key] !== undefined) {
+          if (!Array.isArray(json[key])) { json[key] = [json[key]]; }
           json[key].push(value);
-        } else if (json[key] !== undefined) {
-          if (!Array.isArray(json[key])) json[key] = [json[key]];
-          json[key].push(value);
-        } else {
-          json[key] = value;
-        }
+        } else { json[key] = value; }
       }
-      if (!json.evidence_codes) json.evidence_codes = [];
       return json;
     }
     document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
@@ -226,13 +195,12 @@
       try {
         const idToken = await user.getIdToken(true);
         const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` }, body: JSON.stringify(data) });
-        const responseData = await response.json();
         if (response.ok) {
           submitButton.textContent = 'Success!';
           form.reset();
-          document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
         } else {
-          submitButton.textContent = 'Error';
+          const error = await response.json();
+          submitButton.textContent = `Error: ${error.message || 'Check console'}`;
         }
       } catch (error) { submitButton.textContent = 'Network Error'; }
       setTimeout(() => {
@@ -249,12 +217,31 @@
     const modalCopyBtn = document.getElementById('modal-copy-btn');
     let currentJsonForModal = '';
     let isJsonView = false;
+    
+    const fieldLabelMap = {
+        'event_date': 'Event Date', 'instrument': 'Instrument', 'timeframe': 'Timeframe',
+        'wyckoff_event_code': 'Wyckoff Event', 'volume_evidence': 'Volume Evidence',
+        'analytical_notes': 'Analytical Notes', 'volume_profile_shape': 'Volume Profile',
+        'swing_structure': 'Swing Structure', 'break_of_structure': 'BOS',
+        'ichimoku_cloud': 'Ichimoku', 'daily_profile_geometry': 'Profile Geometry',
+        'weis_wave': 'Weis Wave', 'submission_timestamp_client': 'Submitted At'
+    };
 
     function createDataTable(formData) {
+        const sections = {
+            'CONTEXT': ['event_date', 'instrument', 'timeframe'],
+            'ANALYSIS': ['wyckoff_event_code', 'volume_profile_shape', 'swing_structure', 'break_of_structure', 'ichimoku_cloud', 'daily_profile_geometry', 'weis_wave'],
+            'NOTES': ['analytical_notes'],
+            'SYSTEM': ['submission_timestamp_client']
+        };
         let tableHTML = '<table class="preview-table"><thead><tr><th>Field</th><th>Value</th></tr></thead><tbody>';
-        for (const [key, value] of Object.entries(formData)) {
-            if (value) { // Don't show empty fields
-                tableHTML += `<tr><td>${key}</td><td>${Array.isArray(value) ? value.join(', ') : value}</td></tr>`;
+        for (const [section, fields] of Object.entries(sections)) {
+            const relevantFields = fields.filter(f => formData[f]);
+            if (relevantFields.length > 0) {
+                tableHTML += `<tr><td colspan="2" class="section-header">${section}</td></tr>`;
+                relevantFields.forEach(field => {
+                    tableHTML += `<tr><td>${fieldLabelMap[field] || field}</td><td>${formData[field]}</td></tr>`;
+                });
             }
         }
         tableHTML += '</tbody></table>';
@@ -265,14 +252,11 @@
         const data = formToJSON(form);
         currentJsonForModal = JSON.stringify(data, null, 2);
         isJsonView = false;
-        
         modalTableContent.innerHTML = createDataTable(data);
         modalJsonContent.textContent = currentJsonForModal;
-        
         modalTableContent.style.display = 'block';
         modalJsonContent.style.display = 'none';
         modalToggleBtn.textContent = 'Show JSON';
-        
         modal.classList.add('show');
     }
 
