@@ -42,21 +42,17 @@
     .checkbox-item:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
     .checkbox-item input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--accent); }
     .checkbox-item label { margin: 0; font-size: 13px; cursor: pointer; color: var(--text); }
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+    .chip { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+    .chip:hover { border-color: var(--accent); }
+    .chip input { width: auto; accent-color: var(--accent); }
     #auth-container { position: absolute; top: 0; right: 0; padding: 10px; z-index: 10; }
     #auth-container button { background: var(--border); color: var(--text); font-size: 12px; border: 1px solid var(--border); transition: all 0.2s ease; }
     #auth-container button:hover { background: var(--accent); color: #001018; }
     #user-info { display: flex; align-items: center; gap: 8px; font-size: 12px; }
     #user-email { color: var(--muted); }
-    .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(4px); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
-    .modal-overlay.show { opacity: 1; visibility: visible; }
-    .modal { background: var(--panel); border: 1px solid var(--border); border-radius: 16px; width: 90%; max-width: 600px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5); transform: translateY(20px); transition: transform 0.3s ease; }
-    .modal-overlay.show .modal { transform: translateY(0); }
-    .modal-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
-    .modal-title { font-size: 18px; font-weight: 600; margin: 0; color: var(--accent); }
-    .modal-close { background: none; border: none; color: var(--muted); font-size: 24px; cursor: pointer; padding: 4px; border-radius: 4px; transition: all 0.2s ease; }
-    .modal-close:hover { background: rgba(255, 255, 255, 0.1); color: var(--text); }
-    .modal-body { padding: 24px; overflow-y: auto; flex: 1; }
-    .modal-footer { padding: 16px 24px; border-top: 1px solid var(--border); display: flex; gap: 12px; justify-content: flex-end; }
   </style>
 </head>
 <body>
@@ -73,10 +69,10 @@
       <main>
         <form>
           <fieldset><legend>Context (Where and When)</legend><div class="context-row"><div><label for="wy_event_date">Event Date</label><input id="wy_event_date" name="event_date" type="date" required /></div><div><label for="wy_instrument">Instrument</label><input id="wy_instrument" name="instrument" type="text" placeholder="ES" required /></div><div><label for="wy_timeframe">Timeframe</label><select id="wy_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div></div></fieldset>
-          <fieldset><legend>The Event Section (The "What")</legend><p class="instructions">Log your specific Wyckoff interpretation.</p><label for="wy_event_code" class="question-label">Inferred Event / Setup</label><select id="wy_event_code" name="wyckoff_event_code" required><option value="">Select event...</option><optgroup label="General Tests & Setups"><option value="WYCKOFF_ST_BOTTOM_LOW_VOL">ST of Bottom (LowVol)</option><option value="WYCKOFF_ST_BOTTOM_HIGH_VOL">ST of Bottom (HighVol)</option><option value="WYCKOFF_SPRING_SETUP">Spring / Shakeout Setup</option><option value="WYCKOFF_UPTHRUST_SETUP">Upthrust Setup</option><option value="WYCKOFF_SOS_ACTION">Sign of Strength (SOS) Action</option><option value="WYCKOFF_SOW_ACTION">Sign of Weakness (SOW) Action</option><option value="WYCKOFF_NEUTRAL_NO_EVENT">No Clear Event</option></optgroup><optgroup label="Confirmed Events"><option value="WYCKOFF_SPRING_CONFIRMED">Spring Confirmed</option><option value="WYCKOFF_SPRING_FAILED">Spring Failed / SOW Confirmed</option><option value="WYCKOFF_UPTHRUST_CONFIRMED">Upthrust Confirmed</option><option value="WYCKOFF_UPTHRUST_FAILED">Upthrust Failed / SOS Confirmed</option><option value="WYCKOFF_LPS_CONFIRMED">Last Point of Support (LPS)</option><option value="WYCKOFF_LPSY_CONFIRMED">Last Point of Supply (LPSY)</option></optgroup><optgroup label="Phase A Events"><option value="WYCKOFF_PHASE_A_PS">Preliminary Support (PS)</option><option value="WYCKOFF_PHASE_A_SC">Selling Climax (SC)</option><option value="WYCKOFF_PHASE_A_AR_ACCUM">Automatic Rally (AR) — Accumulation</option><option value="WYCKOFF_PHASE_A_PSY">Preliminary Supply (PSY)</option><option value="WYCKOFF_PHASE_A_BC">Buying Climax (BC)</option><option value="WYCKOFF_PHASE_A_AR_DIST">Automatic Reaction (AR) — Distribution</option></optgroup></select></fieldset>
-          <fieldset><legend>The Evidence Section (The "Why")</legend><p class="instructions">Supporting Evidence (Optional).</p><label class="question-label">Supporting Volume/Delta Evidence</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" id="vol_churn" name="volume_evidence" value="VOL_EVIDENCE_CHURN" /><label for="vol_churn">High Volume Churn</label></div><div class="checkbox-item"><input type="checkbox" id="vol_exhaustion" name="volume_evidence" value="VOL_EVIDENCE_EXHAUSTION" /><label for="vol_exhaustion">Exhaustion Volume</label></div><div class="checkbox-item"><input type="checkbox" id="vol_apathy" name="volume_evidence" value="VOL_EVIDENCE_APATHY" /><label for="vol_apathy">Low Volume / Apathy</label></div><div class="checkbox-item"><input type="checkbox" id="vol_delta_bull" name="volume_evidence" value="VOL_EVIDENCE_DELTA_DIV_BULL" /><label for="vol_delta_bull">Positive Delta Divergence</label></div><div class="checkbox-item"><input type="checkbox" id="vol_delta_bear" name="volume_evidence" value="VOL_EVIDENCE_DELTA_DIV_BEAR" /><label for="vol_delta_bear">Negative Delta Divergence</label></div><div class="checkbox-item"><input type="checkbox" id="vol_large_lots" name="volume_evidence" value="VOL_EVIDENCE_LARGE_LOTS" /><label for="vol_large_lots">Large Lot Absorption</label></div><div class="checkbox-item"><input type="checkbox" id="vol_trapped" name="volume_evidence" value="VOL_EVIDENCE_TRAPPED_TRADERS" /><label for="vol_trapped">Trapped Traders</label></div></div></fieldset>
+          <fieldset><legend>The Event Section (The "What")</legend><p class="instructions">Log your specific Wyckoff interpretation.</p><label for="wy_event_code" class="question-label">Inferred Event / Setup</label><select id="wy_event_code" name="wyckoff_event_code" required><option value="">Select event...</option><optgroup label="General Tests & Setups"><option value="WYCKOFF_ST_BOTTOM_LOW_VOL">ST of Bottom (LowVol)</option><option value="WYCKOFF_ST_BOTTOM_HIGH_VOL">ST of Bottom (HighVol)</option></optgroup><optgroup label="Confirmed Events"><option value="WYCKOFF_SPRING_CONFIRMED">Spring Confirmed</option><option value="WYCKOFF_SPRING_FAILED">Spring Failed / SOW Confirmed</option></optgroup></select></fieldset>
+          <fieldset><legend>The Evidence Section (The "Why")</legend><p class="instructions">Supporting Evidence (Optional).</p><label class="question-label">Supporting Volume/Delta Evidence</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" id="vol_churn" name="volume_evidence" value="VOL_EVIDENCE_CHURN" /><label for="vol_churn">High Volume Churn</label></div><div class="checkbox-item"><input type="checkbox" id="vol_exhaustion" name="volume_evidence" value="VOL_EVIDENCE_EXHAUSTION" /><label for="vol_exhaustion">Exhaustion Volume</label></div><div class="checkbox-item"><input type="checkbox" id="vol_apathy" name="volume_evidence" value="VOL_EVIDENCE_APATHY" /><label for="vol_apathy">Low Volume / Apathy</label></div></div></fieldset>
           <fieldset><legend>The Notes Section (The "Human Touch")</legend><label for="wy_analytical_notes" class="question-label">Analytical Notes</label><textarea id="wy_analytical_notes" name="analytical_notes" rows="4"></textarea></fieldset>
-          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview Data</button><button type="submit" class="primary">Submit</button></div>
+          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview JSON</button><button type="submit" class="primary">Submit</button></div>
         </form>
       </main>
     </section>
@@ -86,18 +82,25 @@
       <header><h2>Form 2 — Auction Structure Vector Tracking</h2></header>
       <main>
         <form>
-          <fieldset><legend>Context (Where and When)</legend><div class="context-row"><div><label for="au_event_date">Event Date</label><input id="au_event_date" name="event_date" type="date" required /></div><div><label for="au_instrument">Instrument</label><input id="au_instrument" name="instrument" type="text" placeholder="ES" required /></div><div><label for="au_timeframe">Timeframe</label><select id="au_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div></div></fieldset>
-          <fieldset><legend>Dominant Trend Bias</legend><label for="au_volume_profile" class="question-label">Volume Profile Shape</label><select id="au_volume_profile" name="volume_profile_shape" required><option value="">Select...</option><option value="VP_SHAPE_D">D-Profile</option><option value="VP_SHAPE_P">p-Profile</option><option value="VP_SHAPE_B">b-Profile</option></select><label for="au_swing_structure" class="question-label">Swing Structure</label><select id="au_swing_structure" name="swing_structure" required><option value="">Select...</option><option value="SWING_STRUCTURE_BULLISH_STRONG">Strong Bullish</option><option value="SWING_STRUCTURE_NEUTRAL_RANGEBOUND">Neutral</option><option value="SWING_STRUCTURE_BEARISH_STRONG">Strong Bearish</option></select></fieldset>
-          <fieldset><legend>The Notes Section (The "Human Touch")</legend><label for="au_analytical_notes" class="question-label">Analytical Notes</label><textarea id="au_analytical_notes" name="analytical_notes" rows="4"></textarea></fieldset>
-          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview Data</button><button type="submit" class="primary">Submit</button></div>
+          <input type="hidden" name="form_id" value="auction_structure_vector" />
+          <div class="grid grid-3 context-row">
+            <div><label for="au_event_date">Event Date</label><input id="au_event_date" name="event_date" type="date" required /></div>
+            <div><label for="au_instrument">Instrument</label><input id="au_instrument" name="instrument" type="text" placeholder="ES" required /></div>
+            <div><label for="au_timeframe">Timeframe</label><input id="au_timeframe" name="timeframe" type="text" placeholder="1D" required /></div>
+          </div>
+          <div class="grid grid-2">
+            <fieldset><legend>Volume Profile Shape</legend><div class="grid"><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_D" required /> D-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_P" /> p-Profile</label><label class="chip"><input type="radio" name="vp_shape" value="VP_SHAPE_B" /> b-Profile</label></div></fieldset>
+            <fieldset><legend>Swing Structure</legend><div class="grid"><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BULLISH_STRONG" required /> Strong Bullish</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_NEUTRAL_RANGEBOUND" /> Neutral</label><label class="chip"><input type="radio" name="swing_structure" value="SWING_STRUCTURE_BEARISH_STRONG" /> Strong Bearish</label></div></fieldset>
+            <fieldset><legend>Break of Structure (BOS)</legend><div class="grid"><label class="chip"><input type="radio" name="bos" value="BOS_BULLISH_CONFIRMED" required /> Confirmed Bullish</label><label class="chip"><input type="radio" name="bos" value="BOS_NEUTRAL_CONSOLIDATING" /> No BOS</label><label class="chip"><input type="radio" name="bos" value="BOS_BEARISH_CONFIRMED" /> Confirmed Bearish</label></div></fieldset>
+            <fieldset><legend>Ichimoku and Cloud</legend><div class="grid"><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_TREND_BULL" required /> Full Bullish</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_NEUTRAL_IN_CLOUD" /> Neutral</label><label class="chip"><input type="radio" name="ichimoku" value="ICHIMOKU_TREND_BEAR" /> Full Bearish</label></div></fieldset>
+          </div>
+          <fieldset><legend>Analytical Notes</legend><textarea id="au_analytical_notes" name="analytical_notes" rows="3"></textarea></fieldset>
+          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview JSON</button><button type="submit" class="primary">Submit</button></div>
         </form>
       </main>
     </section>
   </div>
   
-  <div id="json-modal" class="modal-overlay"> <!-- YOUR PREVIEW MODAL HTML --> </div>
-
-  <!-- FINAL, WORKING SCRIPTS -->
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
   <script>
@@ -183,7 +186,7 @@
         if (response.ok) {
           submitButton.textContent = 'Success!';
           form.reset();
-          form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
+          document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
         } else {
           const error = await response.json();
           submitButton.textContent = `Error: ${error.message || 'Check console'}`;
@@ -195,9 +198,10 @@
       }, 3000);
     }
     
-    // --- 7. PREVIEW MODAL (Simplified Alert) ---
+    // --- 7. PREVIEW FUNCTION ---
     function showJsonPreview(form) {
         const data = formToJSON(form);
+        // Using alert for simplicity, but you can restore your advanced modal here
         alert(JSON.stringify(data, null, 2));
     }
 
