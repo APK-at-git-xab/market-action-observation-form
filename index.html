@@ -112,11 +112,10 @@
   <!-- 1. Add Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-  
+
   <!-- 2. Your Main Application Script -->
   <script>
     // --- 1. FIREBASE CONFIGURATION ---
-    // PASTE THE firebaseConfig OBJECT YOU COPIED FROM THE FIREBASE CONSOLE HERE
     const firebaseConfig = {
       apiKey: "AIzaSyC-luLioK_DM2nIhD6KYG_LhOx9Y9Tdis0",
       authDomain: "market-observation-forms.firebaseapp.com",
@@ -128,14 +127,13 @@
     };
     
     // --- 2. CONFIGURATION FOR YOUR CLOUD FUNCTIONS ---
-    // We will fill these in later
     const WYCKOFF_FORM_URL = 'YOUR_WYCKOFF_CLOUD_FUNCTION_URL';
     const AUCTION_FORM_URL = 'YOUR_AUCTION_CLOUD_FUNCTION_URL';
 
-    // --- 3. FIREBASE INITIALIZATION & AUTH LOGIC ---
+    // --- 3. FIREBASE INITIALIZATION (Corrected Syntax) ---
     const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.getAuth(app);
-    const provider = new firebase.auth.GoogleAuthProvider();
+    const auth = firebase.auth(); // CORRECTED
+    const provider = new firebase.auth.GoogleAuthProvider(); // CORRECTED
 
     // Get references to all the UI elements
     const signinBtn = document.getElementById('signin-btn');
@@ -150,29 +148,26 @@
     const formWyckoff = panelWy.querySelector('form');
     const formAuction = panelAu.querySelector('form');
 
-    // Handle Sign In/Out button clicks
-    signinBtn.addEventListener('click', () => firebase.auth().signInWithPopup(provider).catch(err => console.error("Sign in error:", err)));
-    signoutBtn.addEventListener('click', () => firebase.auth().signOut());
+    // --- 4. AUTHENTICATION LOGIC ---
+    signinBtn.addEventListener('click', () => auth.signInWithPopup(provider).catch(err => console.error("Sign in error:", err)));
+    signoutBtn.addEventListener('click', () => auth.signOut());
 
-    // Listen for changes in authentication state
-    firebase.auth().onAuthStateChanged(user => {
+    auth.onAuthStateChanged(user => {
       const allActionButtons = document.querySelectorAll('.btnbar button');
       if (user) {
-        // --- USER IS SIGNED IN ---
         signinBtn.classList.add('hidden');
         userInfo.classList.remove('hidden');
         userEmail.textContent = user.email;
-        allActionButtons.forEach(btn => btn.disabled = false); // Enable all form buttons
+        allActionButtons.forEach(btn => btn.disabled = false);
       } else {
-        // --- USER IS SIGNED OUT ---
         signinBtn.classList.remove('hidden');
         userInfo.classList.add('hidden');
         userEmail.textContent = '';
-        allActionButtons.forEach(btn => btn.disabled = true); // Disable all form buttons
+        allActionButtons.forEach(btn => btn.disabled = true);
       }
     });
 
-    // --- 4. FORM DATA SERIALIZATION (HELPER FUNCTION) ---
+    // --- 5. FORM DATA SERIALIZATION (from your V3 file) ---
     function formToJSON(form) {
         const data = new FormData(form);
         const json = {};
@@ -191,10 +186,10 @@
         return json;
     }
 
-    // --- 5. THE SUBMISSION HANDLER ---
+    // --- 6. THE SUBMISSION HANDLER ---
     async function handleFormSubmit(event, url) {
       event.preventDefault();
-      const user = firebase.auth().currentUser;
+      const user = auth.currentUser;
       if (!user) { alert("You must be signed in to submit data."); return; }
       
       const form = event.target;
@@ -217,37 +212,29 @@
 
         if (response.ok) {
           submitButton.textContent = 'Success!';
-          submitButton.style.backgroundColor = '#10b981';
           form.reset();
           form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
         } else {
           const error = await response.json();
-          console.error('Submission Error:', error);
           submitButton.textContent = `Error: ${error.message || 'Check console'}`;
-          submitButton.style.backgroundColor = '#ef4444';
         }
       } catch (error) {
         console.error('Network Error:', error);
         submitButton.textContent = 'Network Error';
-        submitButton.style.backgroundColor = '#ef4444';
       } finally {
         setTimeout(() => {
           submitButton.disabled = false;
           submitButton.textContent = originalButtonText;
-          submitButton.style.backgroundColor = '';
         }, 3000);
       }
     }
-
-    // --- 6. ALL MODAL AND PREVIEW FUNCTIONS ---
-    let currentJsonData = '';
+    
+    // --- 7. PREVIEW FUNCTION ---
     function showJsonModal(formData) {
-        currentJsonData = JSON.stringify(formData, null, 2);
-        // This is a simplified preview. You can use your more advanced modal from V3 if you copy it back in.
-        alert(currentJsonData);
+        alert(JSON.stringify(formData, null, 2));
     }
 
-    // --- 7. TABBING & OTHER UI LOGIC ---
+    // --- 8. TABBING & OTHER UI LOGIC ---
     function selectTab(which) {
         const isWyckoff = which === 'wyckoff';
         tabWy.setAttribute('aria-selected', isWyckoff);
@@ -259,23 +246,18 @@
     tabAu.addEventListener('click', () => selectTab('auction'));
     document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
 
-    // --- 8. ATTACH EVENT LISTENERS TO BUTTONS ---
+    // --- 9. ATTACH EVENT LISTENERS TO BUTTONS ---
     formWyckoff.addEventListener('submit', (e) => handleFormSubmit(e, WYCKOFF_FORM_URL));
     formAuction.addEventListener('submit', (e) => handleFormSubmit(e, AUCTION_FORM_URL));
 
-    formWyckoff.querySelector('[data-action="preview"]').addEventListener('click', () => {
-        showJsonModal(formToJSON(formWyckoff));
-    });
-    formAuction.querySelector('[data-action="preview"]').addEventListener('click', () => {
-        showJsonModal(formToJSON(formAuction));
-    });
+    formWyckoff.querySelector('[data-action="preview"]').addEventListener('click', () => showJsonModal(formToJSON(formWyckoff)));
+    formAuction.querySelector('[data-action="preview"]').addEventListener('click', () => showJsonModal(formToJSON(formAuction)));
 
-    // --- 9. INITIAL STATE CHECK ---
-    // Set initial button disabled state before auth state is known
+    // --- 10. INITIAL STATE CHECK ---
     document.querySelectorAll('.btnbar button').forEach(btn => btn.disabled = true);
-
   </script>
 </body>
 </html>
+
 
 
