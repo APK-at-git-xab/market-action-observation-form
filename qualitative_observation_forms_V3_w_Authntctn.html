@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Qualitative Observation Input Forms</title>
+  <!-- Main Stylesheet (your existing styles are perfect) -->
+  <style>
+    :root {
+      --bg: #0f172a; --panel: #111827; --muted: #94a3b8; --text: #e5e7eb;
+      --accent: #22d3ee; --accent-2: #a78bfa; --border: #1f2937;
+      --form1-bg: rgba(17,24,39,0.85); --form2-bg: rgba(32,41,60,0.9);
+      --phase-bg: rgba(255,255,255,0.05);
+    }
+    body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); }
+    .container { max-width: 1100px; margin: 32px auto; padding: 0 16px; }
+    header { text-align: center; margin-bottom: 24px; position: relative; }
+    h1 { font-size: 36px; margin: 0 0 16px 0; background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 700; letter-spacing: -0.5px; }
+    /* ... All your other beautiful styles go here ... */
+    /* I've omitted them for brevity, but you should keep them all */
+    
+    /* --- NEW STYLES FOR AUTH --- */
+    #auth-container {
+      position: absolute; top: 0; right: 0; padding: 10px;
+    }
+    #auth-container button {
+      background: var(--border); color: var(--text); font-size: 12px;
+      border: 1px solid var(--border); transition: all 0.2s ease;
+    }
+    #auth-container button:hover { background: var(--accent); color: #001018; }
+    #user-info { display: flex; align-items: center; gap: 8px; font-size: 12px; }
+    #user-email { color: var(--muted); }
+    .hidden { display: none !important; }
+    button:disabled { cursor: not-allowed; background-color: #374151 !important; color: #9ca3af !important; }
+    /* ... All your other styles ... */
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <!-- NEW: Authentication UI -->
+      <div id="auth-container">
+        <button id="signin-btn">Sign In with Google</button>
+        <div id="user-info" class="hidden">
+          <span id="user-email"></span>
+          <button id="signout-btn">Sign Out</button>
+        </div>
+      </div>
+      <!-- End of Auth UI -->
+
+      <h1>Qualitative Observation Input Forms</h1>
+      <nav class="tabs" role="tablist" aria-label="Forms">
+        <div class="tab" role="tab" id="tab-wyckoff" aria-controls="panel-wyckoff" aria-selected="true">Wyckoff Structure Vector</div>
+        <div class="tab" role="tab" id="tab-auction" aria-controls="panel-auction" aria-selected="false">Auction Structure Vector</div>
+      </nav>
+    </header>
+
+    <!-- WYCKOFF STRUCTURE VECTOR FORM (no changes needed in the HTML structure) -->
+    <section id="panel-wyckoff" role="tabpanel" aria-labelledby="tab-wyckoff" class="card">
+        <!-- ... Your entire Wyckoff form HTML goes here ... -->
+    </section>
+
+    <!-- AUCTION STRUCTURE VECTOR FORM (no changes needed in the HTML structure) -->
+    <section id="panel-auction" role="tabpanel" aria-labelledby="tab-auction" class="card hidden">
+        <!-- ... Your entire Auction form HTML goes here ... -->
+    </section>
+  </div>
+
+  <!-- JSON Preview Modal (no changes needed in the HTML structure) -->
+  <div id="json-modal" class="modal-overlay">
+      <!-- ... Your entire modal HTML goes here ... -->
+  </div>
+
+  <!-- START OF SCRIPT SECTION -->
+
+  <!-- 1. Add Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
+
+  <!-- 2. Your Main Application Script -->
+  <script>
+    // --- 1. FIREBASE CONFIGURATION ---
+    // PASTE THE firebaseConfig OBJECT YOU COPIED FROM THE FIREBASE CONSOLE HERE
+    const firebaseConfig = {
+      apiKey: "AIzaSyC-luLioK_DM2nIhD6KYG_LhOx9Y9Tdis0",
+      authDomain: "market-observation-forms.firebaseapp.com",
+      projectId: "market-observation-forms",
+      storageBucket: "market-observation-forms.firebasestorage.app",
+      messagingSenderId: "327733777418",
+      appId: "1:327733777418:web:7755807347824bdd197bf3",
+      measurementId: "G-45J44Q9KPV"
+    };
+    
+    // --- 2. CONFIGURATION FOR YOUR CLOUD FUNCTIONS ---
+    const WYCKOFF_FORM_URL = 'YOUR_WYCKOFF_CLOUD_FUNCTION_URL'; // You will get this after deploying the function
+    const AUCTION_FORM_URL = 'YOUR_AUCTION_CLOUD_FUNCTION_URL'; // You will get this after deploying the function
+
+    // --- 3. FIREBASE INITIALIZATION & AUTH LOGIC ---
+    const app = firebase.initializeApp(firebaseConfig);
+    const auth = firebase.getAuth(app);
+    const provider = new firebase.auth.GoogleAuthProvider();
+
+    // Get references to all the UI elements
+    const signinBtn = document.getElementById('signin-btn');
+    const signoutBtn = document.getElementById('signout-btn');
+    const userInfo = document.getElementById('user-info');
+    const userEmail = document.getElementById('user-email');
+    const allForms = document.querySelectorAll('form');
+
+    // Handle Sign In button click
+    signinBtn.addEventListener('click', () => {
+      firebase.auth().signInWithPopup(provider).catch(err => console.error("Sign in error:", err));
+    });
+
+    // Handle Sign Out button click
+    signoutBtn.addEventListener('click', () => firebase.auth().signOut());
+
+    // Listen for changes in authentication state (the core of the auth logic)
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        // --- USER IS SIGNED IN ---
+        signinBtn.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        userEmail.textContent = user.email;
+        // Enable all submit and preview buttons
+        allForms.forEach(form => {
+            form.querySelector('button[type="submit"]').disabled = false;
+            form.querySelector('button[data-action="preview"]').disabled = false;
+        });
+      } else {
+        // --- USER IS SIGNED OUT ---
+        signinBtn.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        userEmail.textContent = '';
+        // Disable all submit and preview buttons
+        allForms.forEach(form => {
+            form.querySelector('button[type="submit"]').disabled = true;
+            form.querySelector('button[data-action="preview"]').disabled = true;
+        });
+      }
+    });
+
+    // --- 4. THE SUBMISSION HANDLER (NOW WITH AUTH!) ---
+    async function handleFormSubmit(event, url) {
+      event.preventDefault();
+
+      const user = firebase.auth().currentUser;
+      if (!user) {
+        alert("You must be signed in to submit data.");
+        return;
+      }
+      
+      const form = event.target;
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
+      
+      submitButton.disabled = true;
+      submitButton.textContent = 'Authorizing...';
+
+      try {
+        // THE CRUCIAL SECURITY STEP: Get the user's ID token
+        const idToken = await user.getIdToken(true);
+        
+        submitButton.textContent = 'Submitting...';
+        const data = formToJSON(form); // Your existing function to get data
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // Attach the token to the request header
+            'Authorization': `Bearer ${idToken}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+            submitButton.textContent = 'Success!';
+            // ... (rest of your success logic)
+        } else {
+            const error = await response.json();
+            submitButton.textContent = `Error: ${error.message || 'Check console'}`;
+            // ... (rest of your error logic)
+        }
+      } catch (error) {
+        console.error('Submission failed:', error);
+        submitButton.textContent = 'Failed';
+      } finally {
+        // ... (rest of your button reset logic)
+      }
+    }
+    
+    // --- 5. ALL YOUR OTHER HELPER FUNCTIONS ---
+    // (formToJSON, modal logic, tabbing, etc. No changes are needed to these.)
+    // Make sure all your existing JavaScript functions are included here.
+
+    // --- 6. ATTACH EVENT LISTENERS ---
+    // (This remains the same)
+  </script>
+</body>
+</html>
