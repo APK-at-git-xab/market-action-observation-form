@@ -107,30 +107,37 @@
     </section>
   </div>
 
+<!-- START OF SCRIPT SECTION -->
+
+  <!-- 1. Add Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth.js"></script>
 
+  <!-- 2. Your Main Application Script -->
   <script>
     // --- 1. FIREBASE CONFIGURATION ---
+    // PASTE THE firebaseConfig OBJECT YOU COPIED FROM THE FIREBASE CONSOLE HERE
     const firebaseConfig = {
-          apiKey: "AIzaSyC-luLioK_DM2nIhD6KYG_LhOx9Y9Tdis0",
-          authDomain: "market-observation-forms.firebaseapp.com",
-          projectId: "market-observation-forms",
-          storageBucket: "market-observation-forms.firebasestorage.app",
-          messagingSenderId: "327733777418",
-          appId: "1:327733777418:web:7755807347824bdd197bf3",
-          measurementId: "G-45J44Q9KPV"
+      apiKey: "AIzaSyC-luLioK_DM2nIhD6KYG_LhOx9Y9Tdis0",
+      authDomain: "market-observation-forms.firebaseapp.com",
+      projectId: "market-observation-forms",
+      storageBucket: "market-observation-forms.firebasestorage.app",
+      messagingSenderId: "327733777418",
+      appId: "1:327733777418:web:7755807347824bdd197bf3",
+      measurementId: "G-45J44Q9KPV"
     };
     
-    // --- 2. YOUR CLOUD FUNCTION URLS ---
+    // --- 2. CONFIGURATION FOR YOUR CLOUD FUNCTIONS ---
+    // We will fill these in later
     const WYCKOFF_FORM_URL = 'YOUR_WYCKOFF_CLOUD_FUNCTION_URL';
     const AUCTION_FORM_URL = 'YOUR_AUCTION_CLOUD_FUNCTION_URL';
 
-    // --- 3. INITIALIZE APP & GET ELEMENTS ---
+    // --- 3. FIREBASE INITIALIZATION & AUTH LOGIC ---
     const app = firebase.initializeApp(firebaseConfig);
     const auth = firebase.getAuth(app);
     const provider = new firebase.auth.GoogleAuthProvider();
 
+    // Get references to all the UI elements
     const signinBtn = document.getElementById('signin-btn');
     const signoutBtn = document.getElementById('signout-btn');
     const userInfo = document.getElementById('user-info');
@@ -140,29 +147,107 @@
     const tabAu = document.getElementById('tab-auction');
     const panelWy = document.getElementById('panel-wyckoff');
     const panelAu = document.getElementById('panel-auction');
+    const formWyckoff = panelWy.querySelector('form');
+    const formAuction = panelAu.querySelector('form');
 
-    // --- 4. AUTHENTICATION LOGIC ---
-    signinBtn.addEventListener('click', () => {
-      firebase.auth().signInWithPopup(provider).catch(err => console.error("Sign in error:", err));
-    });
+    // Handle Sign In/Out button clicks
+    signinBtn.addEventListener('click', () => firebase.auth().signInWithPopup(provider).catch(err => console.error("Sign in error:", err)));
     signoutBtn.addEventListener('click', () => firebase.auth().signOut());
 
+    // Listen for changes in authentication state
     firebase.auth().onAuthStateChanged(user => {
-      const allButtons = document.querySelectorAll('.btnbar button');
+      const allActionButtons = document.querySelectorAll('.btnbar button');
       if (user) {
+        // --- USER IS SIGNED IN ---
         signinBtn.classList.add('hidden');
         userInfo.classList.remove('hidden');
         userEmail.textContent = user.email;
-        allButtons.forEach(btn => btn.disabled = false);
+        allActionButtons.forEach(btn => btn.disabled = false); // Enable all form buttons
       } else {
+        // --- USER IS SIGNED OUT ---
         signinBtn.classList.remove('hidden');
-        userInfo.add('hidden');
+        userInfo.classList.add('hidden');
         userEmail.textContent = '';
-        allButtons.forEach(btn => btn.disabled = true);
+        allActionButtons.forEach(btn => btn.disabled = true); // Disable all form buttons
       }
     });
 
-    // --- 5. TABBING LOGIC ---
+    // --- 4. FORM DATA SERIALIZATION (HELPER FUNCTION) ---
+    function formToJSON(form) {
+        const data = new FormData(form);
+        const json = {};
+        json.submission_timestamp_client = new Date().toISOString();
+        for (const [key, value] of data.entries()) {
+            if (json[key]) {
+                if (!Array.isArray(json[key])) { json[key] = [json[key]]; }
+                json[key].push(value);
+            } else {
+                json[key] = value;
+            }
+        }
+        if (json.volume_evidence && !Array.isArray(json.volume_evidence)) {
+             json.volume_evidence = [json.volume_evidence];
+        }
+        return json;
+    }
+
+    // --- 5. THE SUBMISSION HANDLER ---
+    async function handleFormSubmit(event, url) {
+      event.preventDefault();
+      const user = firebase.auth().currentUser;
+      if (!user) { alert("You must be signed in to submit data."); return; }
+      
+      const form = event.target;
+      const submitButton = form.querySelector('button[type="submit"]');
+      const originalButtonText = submitButton.textContent;
+      
+      submitButton.disabled = true;
+      submitButton.textContent = 'Authorizing...';
+
+      try {
+        const idToken = await user.getIdToken(true);
+        submitButton.textContent = 'Submitting...';
+        const data = formToJSON(form);
+
+        const response = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          submitButton.textContent = 'Success!';
+          submitButton.style.backgroundColor = '#10b981';
+          form.reset();
+          form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
+        } else {
+          const error = await response.json();
+          console.error('Submission Error:', error);
+          submitButton.textContent = `Error: ${error.message || 'Check console'}`;
+          submitButton.style.backgroundColor = '#ef4444';
+        }
+      } catch (error) {
+        console.error('Network Error:', error);
+        submitButton.textContent = 'Network Error';
+        submitButton.style.backgroundColor = '#ef4444';
+      } finally {
+        setTimeout(() => {
+          submitButton.disabled = false;
+          submitButton.textContent = originalButtonText;
+          submitButton.style.backgroundColor = '';
+        }, 3000);
+      }
+    }
+
+    // --- 6. ALL MODAL AND PREVIEW FUNCTIONS ---
+    let currentJsonData = '';
+    function showJsonModal(formData) {
+        currentJsonData = JSON.stringify(formData, null, 2);
+        // This is a simplified preview. You can use your more advanced modal from V3 if you copy it back in.
+        alert(currentJsonData);
+    }
+
+    // --- 7. TABBING & OTHER UI LOGIC ---
     function selectTab(which) {
         const isWyckoff = which === 'wyckoff';
         tabWy.setAttribute('aria-selected', isWyckoff);
@@ -172,13 +257,24 @@
     }
     tabWy.addEventListener('click', () => selectTab('wyckoff'));
     tabAu.addEventListener('click', () => selectTab('auction'));
+    document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
 
-    // --- Set today's date ---
-    document.getElementById('wy_event_date').value = new Date().toISOString().split('T')[0];
+    // --- 8. ATTACH EVENT LISTENERS TO BUTTONS ---
+    formWyckoff.addEventListener('submit', (e) => handleFormSubmit(e, WYCKOFF_FORM_URL));
+    formAuction.addEventListener('submit', (e) => handleFormSubmit(e, AUCTION_FORM_URL));
 
-    // Initial state check
-    firebase.auth().onAuthStateChanged(firebase.auth().currentUser);
+    formWyckoff.querySelector('[data-action="preview"]').addEventListener('click', () => {
+        showJsonModal(formToJSON(formWyckoff));
+    });
+    formAuction.querySelector('[data-action="preview"]').addEventListener('click', () => {
+        showJsonModal(formToJSON(formAuction));
+    });
+
+    // --- 9. INITIAL STATE CHECK ---
+    // Set initial button disabled state before auth state is known
+    document.querySelectorAll('.btnbar button').forEach(btn => btn.disabled = true);
 
   </script>
 </body>
 </html>
+
