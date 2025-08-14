@@ -4,12 +4,11 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qualitative Observation Input Forms</title>
+  <!-- All of your original V3 styles are included here -->
   <style>
     :root {
-      --bg: #0f172a; --panel: #111827; --muted: #94a3b8; --text: #e5e7eb;
-      --accent: #22d3ee; --accent-2: #a78bfa; --border: #1f2937;
-      --form1-bg: rgba(17,24,39,0.85); --form2-bg: rgba(32,41,60,0.9);
-      --phase-bg: rgba(255,255,255,0.05);
+      --bg: #0f172a; --panel: #111827; --muted: #94a3b8; --text: #e5e7eb; --accent: #22d3ee; --accent-2: #a78bfa;
+      --border: #1f2937; --form1-bg: rgba(17,24,39,0.85); --form2-bg: rgba(32,41,60,0.9); --phase-bg: rgba(255,255,255,0.05);
     }
     body { margin: 0; font-family: ui-sans-serif, system-ui, sans-serif; background: var(--bg); color: var(--text); }
     .container { max-width: 1100px; margin: 32px auto; padding: 0 16px; }
@@ -25,17 +24,24 @@
     fieldset { border: 1px solid var(--border); border-radius: 12px; padding: 14px; margin-bottom: 16px; }
     legend { padding: 0 6px; color: var(--accent-2); font-weight: 600; }
     label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 6px; }
-    input, select, textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0a0f1e; color: var(--text); font-family: inherit; }
+    input[type="text"], input[type="date"], select, textarea { width: 100%; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--border); background: #0a0f1e; color: var(--text); font-family: inherit; }
     input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
     .context-row { display: flex; gap: 80px; flex-wrap: wrap; align-items: end; }
     .context-row > div { flex-grow: 1; min-width: 150px; }
     .hidden { display: none !important; }
-    .btnbar { display: flex; justify-content: flex-end; gap: 8px; padding-top: 10px; }
+    .btnbar { display: flex; justify-content: flex-end; gap: 8px; }
     button { padding: 8px 14px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
-    button.primary { background: var(--accent); color: #001018; }
     button:disabled { cursor: not-allowed !important; background: #374151 !important; color: #9ca3af !important; opacity: 0.7; }
+    button.primary { background: var(--accent); color: #001018; }
     button.secondary { background: transparent; border: 1px solid var(--border); color: var(--text); }
-    #auth-container { position: absolute; top: 0; right: 0; padding: 10px; }
+    .instructions { font-size: 13px; color: var(--muted); margin-bottom: 8px; }
+    .question-label { font-weight: bold; font-size: 14px; margin-bottom: 6px; display: inline-block; color: var(--text); }
+    .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px; margin-top: 8px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 8px; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); transition: all 0.2s ease; }
+    .checkbox-item:hover { background: rgba(255,255,255,0.05); border-color: var(--accent); }
+    .checkbox-item input[type="checkbox"] { width: auto; margin: 0; accent-color: var(--accent); }
+    .checkbox-item label { margin: 0; font-size: 13px; cursor: pointer; color: var(--text); }
+    #auth-container { position: absolute; top: 0; right: 0; padding: 10px; z-index: 10; }
     #auth-container button { background: var(--border); color: var(--text); font-size: 12px; border: 1px solid var(--border); transition: all 0.2s ease; }
     #auth-container button:hover { background: var(--accent); color: #001018; }
     #user-info { display: flex; align-items: center; gap: 8px; font-size: 12px; }
@@ -45,75 +51,40 @@
 <body>
   <div class="container">
     <header>
-      <div id="auth-container">
-        <button id="signin-btn">Sign In with Google</button>
-        <div id="user-info" class="hidden">
-          <span id="user-email"></span>
-          <button id="signout-btn">Sign Out</button>
-        </div>
-      </div>
+      <div id="auth-container"><button id="signin-btn">Sign In with Google</button><div id="user-info" class="hidden"><span id="user-email"></span><button id="signout-btn">Sign Out</button></div></div>
       <h1>Qualitative Observation Input Forms</h1>
-      <nav class="tabs" role="tablist" aria-label="Forms">
-        <div class="tab" role="tab" id="tab-wyckoff" aria-controls="panel-wyckoff" aria-selected="true">Wyckoff Structure Vector</div>
-        <div class="tab" role="tab" id="tab-auction" aria-controls="panel-auction" aria-selected="false">Auction Structure Vector</div>
-      </nav>
+      <nav class="tabs" role="tablist" aria-label="Forms"><div class="tab" role="tab" id="tab-wyckoff" aria-controls="panel-wyckoff" aria-selected="true">Wyckoff Structure Vector</div><div class="tab" role="tab" id="tab-auction" aria-controls="panel-auction" aria-selected="false">Auction Structure Vector</div></nav>
     </header>
 
-    <section id="panel-wyckoff" role="tabpanel" aria-labelledby="tab-wyckoff" class="card">
+    <section id="panel-wyckoff" role="tabpanel" aria-labelledby="tab-wyckoff" class="card" style="background: var(--form1-bg);">
       <header><h2>Form 1 — Wyckoff Structure Vector Tracking</h2></header>
       <main>
         <form>
-          <fieldset>
-            <legend>Context (Where and When)</legend>
-            <div class="context-row">
-              <div><label for="wy_event_date">Event Date</label><input id="wy_event_date" name="event_date" type="date" required /></div>
-              <div><label for="wy_instrument">Instrument</label><input id="wy_instrument" name="instrument" type="text" placeholder="ES" required /></div>
-              <div><label for="wy_timeframe">Timeframe</label><select id="wy_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div>
-            </div>
-          </fieldset>
-          <fieldset>
-            <legend>The Event Section (The "What")</legend>
-            <label for="wy_event_code">Inferred Event / Setup</label>
-            <select id="wy_event_code" name="wyckoff_event_code" required>
-              <optgroup label="General Tests & Setups"><option value="WYCKOFF_ST_BOTTOM_LOW_VOL">ST of Bottom (LowVol)</option><option value="WYCKOFF_ST_BOTTOM_HIGH_VOL">ST of Bottom (HighVol)</option></optgroup>
-              <optgroup label="Confirmed Events"><option value="WYCKOFF_SPRING_CONFIRMED">Spring Confirmed</option><option value="WYCKOFF_SPRING_FAILED">Spring Failed / SOW Confirmed</option></optgroup>
-            </select>
-          </fieldset>
-          <fieldset>
-            <legend>The Notes Section</legend>
-            <label for="wy_analytical_notes">Analytical Notes</label>
-            <textarea id="wy_analytical_notes" name="analytical_notes" rows="4"></textarea>
-          </fieldset>
-          <div class="btnbar">
-            <button type="button" class="secondary" data-action="preview">Preview JSON</button>
-            <button type="submit" class="primary">Submit</button>
-          </div>
+          <fieldset><legend>Context (Where and When)</legend><div class="context-row"><div><label for="wy_event_date">Event Date</label><input id="wy_event_date" name="event_date" type="date" required /></div><div><label for="wy_instrument">Instrument</label><input id="wy_instrument" name="instrument" type="text" placeholder="ES" required /></div><div><label for="wy_timeframe">Timeframe</label><select id="wy_timeframe" name="timeframe" required><option value="">Select...</option><option value="1D">1D</option><option value="1Mil">1Mil</option><option value="100k">100k</option></select></div></div></fieldset>
+          <fieldset><legend>The Event Section (The "What")</legend><p class="instructions">Log your specific Wyckoff interpretation.</p><label for="wy_event_code" class="question-label">Inferred Event / Setup</label><select id="wy_event_code" name="wyckoff_event_code" required><optgroup label="General Tests & Setups"><option value="WYCKOFF_ST_BOTTOM_LOW_VOL">ST of Bottom (LowVol)</option><option value="WYCKOFF_ST_BOTTOM_HIGH_VOL">ST of Bottom (HighVol)</option></optgroup><optgroup label="Confirmed Events"><option value="WYCKOFF_SPRING_CONFIRMED">Spring Confirmed</option><option value="WYCKOFF_SPRING_FAILED">Spring Failed / SOW Confirmed</option></optgroup></select></fieldset>
+          <fieldset><legend>The Evidence Section (The "Why")</legend><p class="instructions">Supporting Evidence (Optional).</p><label class="question-label">Supporting Volume/Delta Evidence</label><div class="checkbox-group"><div class="checkbox-item"><input type="checkbox" id="vol_churn" name="volume_evidence" value="VOL_EVIDENCE_CHURN" /><label for="vol_churn">High Volume Churn</label></div><div class="checkbox-item"><input type="checkbox" id="vol_exhaustion" name="volume_evidence" value="VOL_EVIDENCE_EXHAUSTION" /><label for="vol_exhaustion">Exhaustion Volume</label></div><div class="checkbox-item"><input type="checkbox" id="vol_apathy" name="volume_evidence" value="VOL_EVIDENCE_APATHY" /><label for="vol_apathy">Low Volume / Apathy</label></div></div></fieldset>
+          <fieldset><legend>The Notes Section (The "Human Touch")</legend><label for="wy_analytical_notes" class="question-label">Analytical Notes</label><textarea id="wy_analytical_notes" name="analytical_notes" rows="4"></textarea></fieldset>
+          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview JSON</button><button type="submit" class="primary">Submit</button></div>
         </form>
       </main>
     </section>
 
-    <section id="panel-auction" role="tabpanel" aria-labelledby="tab-auction" class="card hidden">
+    <section id="panel-auction" role="tabpanel" aria-labelledby="tab-auction" class="card hidden" style="background: var(--form2-bg);">
       <header><h2>Form 2 — Auction Structure Vector Tracking</h2></header>
       <main>
         <form>
-          <!-- All the fields for Form 2 go here -->
-          <p>This is where the second form will go.</p>
-          <div class="btnbar">
-            <button type="button" class="secondary" data-action="preview">Preview JSON</button>
-            <button type="submit" class="primary">Submit</button>
-          </div>
+          <!-- Your full Form 2 goes here. I'm putting a placeholder. -->
+          <p>The full Auction Structure form will be placed here.</p>
+          <div class="btnbar"><button type="button" class="secondary" data-action="preview">Preview JSON</button><button type="submit" class="primary">Submit</button></div>
         </form>
       </main>
     </section>
   </div>
 
-<!-- START OF SCRIPT SECTION -->
+  <div id="json-modal" class="modal-overlay"> <!-- Your Preview Modal HTML --> </div>
 
-  <!-- 1. Add Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.15.0/firebase-auth-compat.js"></script>
-
-  <!-- 2. Your Main Application Script -->
   <script>
     // --- 1. FIREBASE CONFIGURATION ---
     const firebaseConfig = {
@@ -125,22 +96,20 @@
       appId: "1:327733777418:web:7755807347824bdd197bf3",
       measurementId: "G-45J44Q9KPV"
     };
-    
-    // --- 2. CONFIGURATION FOR YOUR CLOUD FUNCTIONS ---
+
+    // --- 2. CLOUD FUNCTION URLS ---
     const WYCKOFF_FORM_URL = 'YOUR_WYCKOFF_CLOUD_FUNCTION_URL';
     const AUCTION_FORM_URL = 'YOUR_AUCTION_CLOUD_FUNCTION_URL';
 
-    // --- 3. FIREBASE INITIALIZATION (Corrected Syntax) ---
+    // --- 3. INITIALIZE FIREBASE & GET ELEMENTS ---
     const app = firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth(); // CORRECTED
-    const provider = new firebase.auth.GoogleAuthProvider(); // CORRECTED
-
-    // Get references to all the UI elements
+    const auth = firebase.auth();
+    const provider = new firebase.auth.GoogleAuthProvider();
+    
     const signinBtn = document.getElementById('signin-btn');
     const signoutBtn = document.getElementById('signout-btn');
     const userInfo = document.getElementById('user-info');
     const userEmail = document.getElementById('user-email');
-    const allForms = document.querySelectorAll('form');
     const tabWy = document.getElementById('tab-wyckoff');
     const tabAu = document.getElementById('tab-auction');
     const panelWy = document.getElementById('panel-wyckoff');
@@ -148,116 +117,76 @@
     const formWyckoff = panelWy.querySelector('form');
     const formAuction = panelAu.querySelector('form');
 
-    // --- 4. AUTHENTICATION LOGIC ---
+    // --- 4. AUTH LOGIC ---
     signinBtn.addEventListener('click', () => auth.signInWithPopup(provider).catch(err => console.error("Sign in error:", err)));
     signoutBtn.addEventListener('click', () => auth.signOut());
-
     auth.onAuthStateChanged(user => {
-      const allActionButtons = document.querySelectorAll('.btnbar button');
+      const allButtons = document.querySelectorAll('.btnbar button');
       if (user) {
         signinBtn.classList.add('hidden');
         userInfo.classList.remove('hidden');
         userEmail.textContent = user.email;
-        allActionButtons.forEach(btn => btn.disabled = false);
+        allButtons.forEach(btn => btn.disabled = false);
       } else {
         signinBtn.classList.remove('hidden');
         userInfo.classList.add('hidden');
         userEmail.textContent = '';
-        allActionButtons.forEach(btn => btn.disabled = true);
+        allButtons.forEach(btn => btn.disabled = true);
       }
     });
 
-    // --- 5. FORM DATA SERIALIZATION (from your V3 file) ---
+    // --- 5. FORM HELPERS ---
     function formToJSON(form) {
-        const data = new FormData(form);
-        const json = {};
-        json.submission_timestamp_client = new Date().toISOString();
-        for (const [key, value] of data.entries()) {
-            if (json[key]) {
-                if (!Array.isArray(json[key])) { json[key] = [json[key]]; }
-                json[key].push(value);
-            } else {
-                json[key] = value;
-            }
-        }
-        if (json.volume_evidence && !Array.isArray(json.volume_evidence)) {
-             json.volume_evidence = [json.volume_evidence];
-        }
-        return json;
+      const data = new FormData(form);
+      const json = {};
+      json.submission_timestamp_client = new Date().toISOString();
+      for (const [key, value] of data.entries()) {
+        if (json[key]) {
+          if (!Array.isArray(json[key])) { json[key] = [json[key]]; }
+          json[key].push(value);
+        } else { json[key] = value; }
+      }
+      if (json.volume_evidence && !Array.isArray(json.volume_evidence)) { json.volume_evidence = [json.volume_evidence]; }
+      return json;
     }
+    document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
 
-    // --- 6. THE SUBMISSION HANDLER ---
+    // --- 6. SUBMIT HANDLER ---
     async function handleFormSubmit(event, url) {
       event.preventDefault();
       const user = auth.currentUser;
-      if (!user) { alert("You must be signed in to submit data."); return; }
-      
+      if (!user) { alert("You must be signed in."); return; }
       const form = event.target;
       const submitButton = form.querySelector('button[type="submit"]');
-      const originalButtonText = submitButton.textContent;
-      
       submitButton.disabled = true;
       submitButton.textContent = 'Authorizing...';
-
       try {
         const idToken = await user.getIdToken(true);
         submitButton.textContent = 'Submitting...';
         const data = formToJSON(form);
-
-        const response = await fetch(url, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` },
-          body: JSON.stringify(data)
-        });
-
+        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${idToken}` }, body: JSON.stringify(data) });
         if (response.ok) {
           submitButton.textContent = 'Success!';
           form.reset();
-          form.querySelector('input[type="date"]').value = new Date().toISOString().split('T')[0];
         } else {
           const error = await response.json();
           submitButton.textContent = `Error: ${error.message || 'Check console'}`;
         }
-      } catch (error) {
-        console.error('Network Error:', error);
-        submitButton.textContent = 'Network Error';
-      } finally {
-        setTimeout(() => {
-          submitButton.disabled = false;
-          submitButton.textContent = originalButtonText;
-        }, 3000);
-      }
+      } catch (error) { submitButton.textContent = 'Network Error'; }
+      setTimeout(() => { submitButton.disabled = false; submitButton.textContent = 'Submit'; }, 3000);
     }
     
-    // --- 7. PREVIEW FUNCTION ---
-    function showJsonModal(formData) {
-        alert(JSON.stringify(formData, null, 2));
-    }
+    // --- 7. UI EVENT LISTENERS ---
+    tabWy.addEventListener('click', () => { panelWy.classList.remove('hidden'); panelAu.classList.add('hidden'); tabWy.setAttribute('aria-selected', true); tabAu.setAttribute('aria-selected', false); });
+    tabAu.addEventListener('click', () => { panelWy.classList.add('hidden'); panelAu.classList.remove('hidden'); tabWy.setAttribute('aria-selected', false); tabAu.setAttribute('aria-selected', true); });
 
-    // --- 8. TABBING & OTHER UI LOGIC ---
-    function selectTab(which) {
-        const isWyckoff = which === 'wyckoff';
-        tabWy.setAttribute('aria-selected', isWyckoff);
-        tabAu.setAttribute('aria-selected', !isWyckoff);
-        panelWy.classList.toggle('hidden', !isWyckoff);
-        panelAu.classList.toggle('hidden', isWyckoff);
-    }
-    tabWy.addEventListener('click', () => selectTab('wyckoff'));
-    tabAu.addEventListener('click', () => selectTab('auction'));
-    document.querySelectorAll('input[type="date"]').forEach(el => el.value = new Date().toISOString().split('T')[0]);
-
-    // --- 9. ATTACH EVENT LISTENERS TO BUTTONS ---
     formWyckoff.addEventListener('submit', (e) => handleFormSubmit(e, WYCKOFF_FORM_URL));
     formAuction.addEventListener('submit', (e) => handleFormSubmit(e, AUCTION_FORM_URL));
+    formWyckoff.querySelector('[data-action="preview"]').addEventListener('click', () => alert(JSON.stringify(formToJSON(formWyckoff), null, 2)));
+    formAuction.querySelector('[data-action="preview"]').addEventListener('click', () => alert(JSON.stringify(formToJSON(formAuction), null, 2)));
 
-    formWyckoff.querySelector('[data-action="preview"]').addEventListener('click', () => showJsonModal(formToJSON(formWyckoff)));
-    formAuction.querySelector('[data-action="preview"]').addEventListener('click', () => showJsonModal(formToJSON(formAuction)));
-
-    // --- 10. INITIAL STATE CHECK ---
+    // --- 8. INITIAL STATE ---
     document.querySelectorAll('.btnbar button').forEach(btn => btn.disabled = true);
   </script>
 </body>
 </html>
-
-
-
