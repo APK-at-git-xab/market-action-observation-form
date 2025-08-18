@@ -724,7 +724,14 @@
                         </select>
                         <label for="au_weis_wave" class="question-label">Weis Wave</label>
                         <p class="instructions">Inferred market behavior regarding effort vs. Result?</p>
-                        <select id="au_weis_wave" name="weis_wave" required><option value="">Select...</option><option value="WW_SPRING_POTENTIAL">Bullish Reversal (Spring)</option><option value="WW_NO_SUPPLY">No Supply</option><option value="WW_INDECISION_CHURN">Indecision / Churn</option><option value="WW_NO_DEMAND">No Demand</option><option value="WW_UPTHRUST_POTENTIAL">Bearish Reversal (Upthrust)</option></select>
+                        <select id="au_weis_wave" name="weis_wave" required>
+                            <option value="">Select...</option>
+                            <option value="WW_SPRING_POTENTIAL">Bullish Reversal (Spring)</option>
+                            <option value="WW_NO_SUPPLY">No Supply</option>
+                            <option value="WW_INDECISION_CHURN">Indecision / Churn</option>
+                            <option value="WW_NO_DEMAND">No Demand</option>
+                            <option value="WW_UPTHRUST_POTENTIAL">Bearish Reversal (Upthrust)</option>
+                        </select>
                     </fieldset>
                     <fieldset>
                         <legend>The Notes Section (The "Human Touch")</legend>
@@ -778,7 +785,7 @@
         
         // --- 2. CLOUD FUNCTION URLS ---
         const WYCKOFF_FORM_URL = 'https://us-central1-kocm-mtf-analysis.cloudfunctions.net/log-wyckoff-observation';
-        const AUCTION_FORM_URL = 'https://https://us-central1-kocm-mtf-analysis.cloudfunctions.net/log-auction-observation';
+        const AUCTION_FORM_URL = 'https://us-central1-kocm-mtf-analysis.cloudfunctions.net/log-auction-observation';
 
         // --- 3. INITIALIZE & GET ELEMENTS ---
         const app = firebase.initializeApp(firebaseConfig);
@@ -968,6 +975,7 @@
     </script>
 </body>
 </html>
+
 
 
 
